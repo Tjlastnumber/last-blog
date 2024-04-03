@@ -4,14 +4,14 @@
     "href": "index.html",
     "title": "Lastnumber Blog",
     "section": "",
-    "text": "Post With Code\n\n\n\n\n\n\nnews\n\n\ncode\n\n\nanalysis\n\n\n\n\n\n\n\n\n\nApr 3, 2024\n\n\nHarlow Malloc\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nMar 31, 2024\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items"
+    "text": "监控的选型\n\n\n\n\n\n\nnews\n\n\nmonitoring\n\n\nprometheus\n\n\n\n\n\n\n\n\n\nApr 3, 2024\n\n\nlastnumber\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nMar 31, 2024\n\n\nTristan O’Malley\n\n\n\n\n\n\nNo matching items"
   },
   {
-    "objectID": "posts/post-with-code/index.html",
-    "href": "posts/post-with-code/index.html",
-    "title": "Post With Code",
+    "objectID": "posts/prometheus/index.html",
+    "href": "posts/prometheus/index.html",
+    "title": "监控的选型",
     "section": "",
-    "text": "This is a post with executable code."
+    "text": "Prometheus 监控"
   },
   {
     "objectID": "posts/welcome/index.html",
