@@ -1,10 +1,13 @@
 ---
-title: "监控的选型"
-author: "lastnumber"
-date: "2024-04-03"
-categories: [news, monitoring, prometheus]
-image: "image.png"
+title: 监控的选型
+author: lastnumber
+date: 2024-04-03
+categories:
+  - news
+  - monitoring
+  - prometheus
+image: image.png
 ---
-![image.png](./image.png)
+![](./image.png)
 
 # Prometheus 监控
