@@ -6,4 +6,6 @@ categories: [news, monitoring, prometheus]
 image: "image.jpg"
 ---
 
-Prometheus 监控
+![[image.png]]
+
+# Prometheus 监控

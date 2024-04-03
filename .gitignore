@@ -1,6 +1,7 @@
-.quarto/
-_site/
+/.quarto/
+/_site/
+/.obsidian/
 # Mac desktop service store files
 .DS_Store
 
-/.quarto/
+

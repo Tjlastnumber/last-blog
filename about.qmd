@@ -1,5 +1,5 @@
 ---
-title: "About"
+title: About
 image: profile.jpg
 about:
   template: jolla
@@ -7,7 +7,6 @@ about:
     - icon: github
       text: Github
       href: https://github.com/Tjlastnumber
-
 ---
 
 About this blog
