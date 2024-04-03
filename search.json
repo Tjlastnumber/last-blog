@@ -1,24 +1,10 @@
 [
   {
-    "objectID": "Welcome.html",
-    "href": "Welcome.html",
-    "title": "Lastnumber Blog",
-    "section": "",
-    "text": "This is your new vault.\nMake a note of something, [[create a link]], or try the Importer!\nWhen you’re ready, delete this note and make the vault your own."
-  },
-  {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About",
     "section": "",
     "text": "About this blog"
-  },
-  {
-    "objectID": "posts/Obsidian/index.html",
-    "href": "posts/Obsidian/index.html",
-    "title": "使用 Obsidian 编写 Quarto 博客",
-    "section": "",
-    "text": "使用 Obsidian 编写 Quarto 博客"
   },
   {
     "objectID": "posts/welcome/index.html",
@@ -28,17 +14,31 @@
     "text": "我的第一篇 Blog\n\n想些一篇博客很久了，但是已知给自己找借口没有下定确定去做。一个是比较懒，还有就是嫌弃自己搭建一个博客网站比较麻烦，买域名、找框架，我有是比较爱瞎折腾的人，可能过程中容易跑偏了。所以一直没有做这件事。\n很巧合的看到了通过 Quarto 搭建 Blog 的视频，跟着做下来很快就搭建好了，而且配置 Obsidian 编辑器也很方便，感觉就是天生一对。\n之后应该会花一些时间在搭建 blog 上，正好让自己能每天有一些积累，之前一直搁置的事情也可以有一个动力做起来。"
   },
   {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Lastnumber Blog",
+    "section": "",
+    "text": "使用 Obsidian 编写 Quarto 博客\n\n\n\n\n\n\nobsidian\n\n\nquarto\n\n\n\n\n\n\n\n\n\nApr 3, 2024\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nApr 3, 2024\n\n\nLastnumber\n\n\n\n\n\n\n\n\n\n\n\n\n监控的选型\n\n\n\n\n\n\nnews\n\n\nmonitoring\n\n\nprometheus\n\n\n\n\n\n\n\n\n\nApr 3, 2024\n\n\nlastnumber\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "Welcome.html",
+    "href": "Welcome.html",
+    "title": "Lastnumber Blog",
+    "section": "",
+    "text": "This is your new vault.\nMake a note of something, [[create a link]], or try the Importer!\nWhen you’re ready, delete this note and make the vault your own."
+  },
+  {
+    "objectID": "posts/Obsidian/index.html",
+    "href": "posts/Obsidian/index.html",
+    "title": "使用 Obsidian 编写 Quarto 博客",
+    "section": "",
+    "text": "使用 Obsidian 编写 Quarto 博客"
+  },
+  {
     "objectID": "posts/prometheus/index.html",
     "href": "posts/prometheus/index.html",
     "title": "监控的选型",
     "section": "",
     "text": "Prometheus 监控"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Lastnumber Blog",
-    "section": "",
-    "text": "Welcome To My Blog\n\n\n\n\n\n\nnews\n\n\n\n\n\n\n\n\n\nApr 3, 2024\n\n\nLastnumber\n\n\n\n\n\n\n\n\n\n\n\n\n使用 Obsidian 编写 Quarto 博客\n\n\n\n\n\n\nobsidian\n\n\nquarto\n\n\n\n\n\n\n\n\n\nApr 3, 2024\n\n\n\n\n\n\n\n\n\n\n\n\n监控的选型\n\n\n\n\n\n\nnews\n\n\nmonitoring\n\n\nprometheus\n\n\n\n\n\n\n\n\n\nApr 3, 2024\n\n\nlastnumber\n\n\n\n\n\n\nNo matching items"
   }
 ]
