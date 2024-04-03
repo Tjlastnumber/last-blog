@@ -5,7 +5,6 @@ date: "2024-04-03"
 categories: [news, monitoring, prometheus]
 image: "image.png"
 ---
-
-![[image.png]]
+![image.png](./image.png)
 
 # Prometheus 监控
