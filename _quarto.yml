@@ -10,7 +10,9 @@ website:
         href: https://github.com/tjlastnumber
 format:
   html:
-    theme: cosmo
+    theme: 
+      light: cosmo
+      dark: cyborg
     css: styles.css
 
 execute:
