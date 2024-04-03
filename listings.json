@@ -3,6 +3,7 @@
     "listing": "/index.html",
     "items": [
       "/posts/welcome/index.html",
+      "/posts/Obsidian/index.html",
       "/posts/prometheus/index.html"
     ]
   }
