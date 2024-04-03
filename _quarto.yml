@@ -12,7 +12,7 @@ format:
   html:
     theme: 
       light: cosmo
-      dark: cyborg
+      dark: [cyborg, theme-dark.scss]
     css: styles.css
 
 execute:
