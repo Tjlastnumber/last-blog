@@ -14,11 +14,11 @@
     "text": "About this blog"
   },
   {
-    "objectID": "posts/Obsidian/index.html",
-    "href": "posts/Obsidian/index.html",
-    "title": "使用 Obsidian 编写 Quarto 博客",
+    "objectID": "posts/prometheus/index.html",
+    "href": "posts/prometheus/index.html",
+    "title": "监控的选型",
     "section": "",
-    "text": "使用 Obsidian 编写 Quarto 博客"
+    "text": "Prometheus 监控"
   },
   {
     "objectID": "posts/welcome/index.html",
@@ -28,11 +28,18 @@
     "text": "我的第一篇 Blog\n\n想写一篇博客很久了，但是一直给自己找借口没有下定决心去做。一个是比较懒，二是嫌弃自己搭建一个博客网站比较麻烦，买域名、找框架，我又是比较爱瞎折腾的人，可能过程中容易跑偏了。所以一直没有做这件事。\n很巧合的看到了通过 Quarto 搭建 blog 的视频，跟着做下来很快就搭建好了，而且配置 Obsidian 编辑器也很方便，感觉就是天生一对，也就把这个 blog 很快搭建起来了。\n之后应该会花一些时间在搭建 blog 上，正好让自己能每天有一些积累，之前一直搁置的事情也可以有一个动力做起来。"
   },
   {
-    "objectID": "posts/prometheus/index.html",
-    "href": "posts/prometheus/index.html",
-    "title": "监控的选型",
+    "objectID": "posts/Obsidian/index.html",
+    "href": "posts/Obsidian/index.html",
+    "title": "使用 Obsidian 编写 Quarto 博客",
     "section": "",
-    "text": "Prometheus 监控"
+    "text": "使用 Obsidian 编写 Quarto 博客"
+  },
+  {
+    "objectID": "projects.html",
+    "href": "projects.html",
+    "title": "Projects",
+    "section": "",
+    "text": "My Projects"
   },
   {
     "objectID": "index.html",
