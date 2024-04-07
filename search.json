@@ -21,6 +21,27 @@
     "text": "Prometheus 监控"
   },
   {
+    "objectID": "posts/Obsidian/index.html",
+    "href": "posts/Obsidian/index.html",
+    "title": "使用 Obsidian 编写 Quarto 博客",
+    "section": "",
+    "text": "Obsidian是一款基于 Markdown 的笔记编辑器，具有双向链接、图形化关系展示、标签和目录管理等功能。它支持插件扩展，提供本地存储和加密，跨平台支持，并适用于个人知识管理、学习和项目管理。\n之前我用过印象笔记（Evernote)、Notion、Joplin：\n\n印象笔记：比较老牌的笔记管理工具，但当时对 markdown 文档支持不是那么理想，设计上也是传统的页面，而且不支持插件。他的优势在于对网页的快速保存。所以现在是作为我的网页收藏夹来使用。\nJoplin：是比较现代的化的 markdown 编辑器，优点是支持插件、可以云盘存储比如\n\n\n\n\n---\ntitle: 使用 Obsidian 编写 Quarto 博客\ncategories:\n  - obsidian\n  - quarto\ndate: 2024-04-03\nimage: image.png\n---"
+  },
+  {
+    "objectID": "posts/Obsidian/index.html#obsidian-介绍",
+    "href": "posts/Obsidian/index.html#obsidian-介绍",
+    "title": "使用 Obsidian 编写 Quarto 博客",
+    "section": "",
+    "text": "Obsidian是一款基于 Markdown 的笔记编辑器，具有双向链接、图形化关系展示、标签和目录管理等功能。它支持插件扩展，提供本地存储和加密，跨平台支持，并适用于个人知识管理、学习和项目管理。\n之前我用过印象笔记（Evernote)、Notion、Joplin：\n\n印象笔记：比较老牌的笔记管理工具，但当时对 markdown 文档支持不是那么理想，设计上也是传统的页面，而且不支持插件。他的优势在于对网页的快速保存。所以现在是作为我的网页收藏夹来使用。\nJoplin：是比较现代的化的 markdown 编辑器，优点是支持插件、可以云盘存储比如"
+  },
+  {
+    "objectID": "posts/Obsidian/index.html#quarto-介绍",
+    "href": "posts/Obsidian/index.html#quarto-介绍",
+    "title": "使用 Obsidian 编写 Quarto 博客",
+    "section": "",
+    "text": "---\ntitle: 使用 Obsidian 编写 Quarto 博客\ncategories:\n  - obsidian\n  - quarto\ndate: 2024-04-03\nimage: image.png\n---"
+  },
+  {
     "objectID": "posts/welcome/index.html",
     "href": "posts/welcome/index.html",
     "title": "Welcome To My Blog",
@@ -28,11 +49,39 @@
     "text": "我的第一篇 Blog\n\n想写一篇博客很久了，但是一直给自己找借口没有下定决心去做。一个是比较懒，二是嫌弃自己搭建一个博客网站比较麻烦，买域名、找框架，我又是比较爱瞎折腾的人，可能过程中容易跑偏了。所以一直没有做这件事。\n很巧合的看到了通过 Quarto 搭建 blog 的视频，跟着做下来很快就搭建好了，而且配置 Obsidian 编辑器也很方便，感觉就是天生一对，也就把这个 blog 很快搭建起来了。\n之后应该会花一些时间在搭建 blog 上，正好让自己能每天有一些积累，之前一直搁置的事情也可以有一个动力做起来。"
   },
   {
-    "objectID": "posts/Obsidian/index.html",
-    "href": "posts/Obsidian/index.html",
-    "title": "使用 Obsidian 编写 Quarto 博客",
+    "objectID": "posts/prometheus/dockerswarm.html",
+    "href": "posts/prometheus/dockerswarm.html",
+    "title": "docker swarm 部署 prometheus 监控",
     "section": "",
-    "text": "使用 Obsidian 编写 Quarto 博客"
+    "text": "由于不能从外部访问 docker swarm 的 overlay 网络，prometheus 无法在外部访问应用端口，所以需要将 prometheus 部署对应的 stack 环境并加入到 ingress 网络，这样就能在内部通过 vip 或者 service name 访问容器\n\n\n\n修改 /etc/docker/daemon.json 添加配置：\n\n{\n  \"metrics-addr\": \"0.0.0.0:9323\"\n  \"experimental\": true\n}\n也可以配置 ip 地址而不是 0.0.0.0\n\n重启 docker 守护进程\n\n$ systemctl restart docker\n\n\n\n\n\n\n注意\n\n\n\n\n需要集群中所有 docker 打开 9323 端口\n需要打开服务器防火墙\n\n\n\n\n\n\n在当前目录创建 prometheus.yml 文件:\n# my global config\nglobal:\n  scrape_interval: 1m # Set the scrape interval to every 15 seconds. Default is every 1 minute.\n  evaluation_interval: 1m # Evaluate rules every 15 seconds. The default is every 1 minute.\n  scrape_timeout: 10s # scrape_timeout is set to the global default (10s).\n\n# Alertmanager configuration\nalerting:\n  alertmanagers:\n    - static_configs:\n        - targets:\n          # - alertmanager:9093\n          \nscrape_configs:\n  - job_name: \"dockerswarm\"\n    dockerswarm_sd_configs:\n      - host: unix:///var/run/docker.sock\n        role: nodes\n    relabel_configs:\n      - source_labels: [__meta_dockerswarm_node_address]\n        target_label: __address__\n        replacement: $1:9323\n      - source_labels: [__meta_dockerswarm_node_hostname]\n        target_label: instance\n\n  - job_name: 'dockertasks'\n    metrics_path: /actuator/prometheus\n    dockerswarm_sd_configs:\n      - host: unix:///var/run/docker.sock\n        role: tasks\n    relabel_configs:\n      # Only keep containers that should be running.\n      - source_labels: [__meta_dockerswarm_task_desired_state]\n        regex: running\n        action: keep\n      - source_labels: [__meta_dockerswarm_container_label_com_docker_stack_namespace]\n        regex: dev\n        action: keep\n      - source_labels: [__meta_dockerswarm_container_label_external_metrics_enable]\n        regex: true\n        action: keep\n      - source_labels: [__address__]\n        target_label: __address__\n        regex: '(.+):.*'\n        replacement: $1:8080\n      - source_labels: [__meta_dockerswarm_service_label_com_docker_stack_namespace]\n        target_label: namespace\n      - source_labels: [__meta_dockerswarm_service_name]\n        target_label: serviceName\n      - source_labels: [__meta_dockerswarm_service_name]\n        target_label: application\n      - source_labels: [__meta_dockerswarm_task_id]\n        target_label: instance\n配置说明\n\njob_name:\"dockerswarm\": docker swarm 节点监控\n\ndockerswarm_sd_configs: 使用 prometheus 内置支持的 dockerswarm 服务发现配置\n\nhost: 配置 unix:///var/run/docker.sock 访问 docker 的守护进程\nrole: 配置为 node 用于访问表示监控 docker swarm 节点\n\n__meta_dockerswarm_node_address: 使用 docker swarm 节点地址替换 __address label\n__meta_dockerswarm_node_hostname: 使用 docker swarm hostname 替换 instance label\n\njob_name: 'dockertasks': docker task 监控, 监控容器\n\ndockerswarm_sd_configs: 同样使用 docker swarm 服务发现配置\n\nhost: 配置 unix:///var/run/docker.sock 访问 docker 的守护进程\nrole: 配置为 tasks 用于访问表示监控 docker swarm 运行的容器\n\n__meta_dockerswarm_task_desired_state: 过滤容器运行状态要保持容器状态微 running\n__meta_dockerswarm_container_label_com_docker_stack_namespace: 容器运行的命名空间, 对应的是 docker swarm 中的 stock , namespace 是 k8s 中不同环境之间隔离的划分名称, 这里过滤掉 stock 非 dev\n__meta_dockerswarm_container_label_external_metrics_enable: 过滤开启了监控的容器\n__address__: 替换默认监控容器的端口, 我习惯上使用容器内的 8080 端口作为服务的默认访问端口, 可以根据跟人习惯修改\n__meta_dockerswarm_service_label_com_docker_stack_namespace: 使用 stack 替换 namespace\n__meta_dockerswarm_service_name: 使用docker swarm的服务名称替换掉 application 和 serviceName label\n__meta_dockerswarm_task_id: 使用 task_id 替换掉 instance\n\n\n\n\n\nversion: \"3.5\"\n\nservices:\n  prometheus:\n    image: prom/prometheus:latest\n    ports:\n      - \"9090:9090\"\n    user: root\n    deploy:\n      mode: replicated\n      replicas: 1\n      placement:\n        constraints:\n          - node.role == manager\n    networks:\n      - overlay\n    configs:\n      - source: prometheus_config\n        target: /etc/prometheus/prometheus.yml\n    command:\n      - '--config.file=/etc/prometheus/prometheus.yml'\n    volumes:\n      - /var/run/docker.sock:/var/run/docker.sock:ro\n\nconfigs:\n  prometheus_config:\n    file: ./prometheus.yml\n\nnetworks:\n  overlay:\n\nuser：root: 使用 root 用户创建容器，因为需要监听 docker.sock\n挂载 /var/run/docker.sock 监控 docker swarm 集群情况\n挂载配置使用当前目录的配置文件创建 docker config\n- node.role == manager: 将容器部署到 manager 节点\n加入到 overlay 网络\n启动时挂载刚刚创建的 prometheus.yml 文件到 docker config\n\n\n\n\n在目标 stack 环境部署 prometheus\n$ docker stack deploy -c docker_compose.yml {stack}\n\n\n\n\n\n\n注意\n\n\n\n如果是多套 stock 环境则必须每个 stock 中都要部署 prometheus 用于监控, 这是因为 docker swarm 默认的 overlay 网络之间不能互相通信. 同时每个容器只能配置唯一的 overlay 网络"
+  },
+  {
+    "objectID": "posts/prometheus/dockerswarm.html#打开-docker-采集端口",
+    "href": "posts/prometheus/dockerswarm.html#打开-docker-采集端口",
+    "title": "docker swarm 部署 prometheus 监控",
+    "section": "",
+    "text": "修改 /etc/docker/daemon.json 添加配置：\n\n{\n  \"metrics-addr\": \"0.0.0.0:9323\"\n  \"experimental\": true\n}\n也可以配置 ip 地址而不是 0.0.0.0\n\n重启 docker 守护进程\n\n$ systemctl restart docker\n\n\n\n\n\n\n注意\n\n\n\n\n需要集群中所有 docker 打开 9323 端口\n需要打开服务器防火墙"
+  },
+  {
+    "objectID": "posts/prometheus/dockerswarm.html#在-docker-swarm-创建-configs",
+    "href": "posts/prometheus/dockerswarm.html#在-docker-swarm-创建-configs",
+    "title": "docker swarm 部署 prometheus 监控",
+    "section": "",
+    "text": "在当前目录创建 prometheus.yml 文件:\n# my global config\nglobal:\n  scrape_interval: 1m # Set the scrape interval to every 15 seconds. Default is every 1 minute.\n  evaluation_interval: 1m # Evaluate rules every 15 seconds. The default is every 1 minute.\n  scrape_timeout: 10s # scrape_timeout is set to the global default (10s).\n\n# Alertmanager configuration\nalerting:\n  alertmanagers:\n    - static_configs:\n        - targets:\n          # - alertmanager:9093\n          \nscrape_configs:\n  - job_name: \"dockerswarm\"\n    dockerswarm_sd_configs:\n      - host: unix:///var/run/docker.sock\n        role: nodes\n    relabel_configs:\n      - source_labels: [__meta_dockerswarm_node_address]\n        target_label: __address__\n        replacement: $1:9323\n      - source_labels: [__meta_dockerswarm_node_hostname]\n        target_label: instance\n\n  - job_name: 'dockertasks'\n    metrics_path: /actuator/prometheus\n    dockerswarm_sd_configs:\n      - host: unix:///var/run/docker.sock\n        role: tasks\n    relabel_configs:\n      # Only keep containers that should be running.\n      - source_labels: [__meta_dockerswarm_task_desired_state]\n        regex: running\n        action: keep\n      - source_labels: [__meta_dockerswarm_container_label_com_docker_stack_namespace]\n        regex: dev\n        action: keep\n      - source_labels: [__meta_dockerswarm_container_label_external_metrics_enable]\n        regex: true\n        action: keep\n      - source_labels: [__address__]\n        target_label: __address__\n        regex: '(.+):.*'\n        replacement: $1:8080\n      - source_labels: [__meta_dockerswarm_service_label_com_docker_stack_namespace]\n        target_label: namespace\n      - source_labels: [__meta_dockerswarm_service_name]\n        target_label: serviceName\n      - source_labels: [__meta_dockerswarm_service_name]\n        target_label: application\n      - source_labels: [__meta_dockerswarm_task_id]\n        target_label: instance\n配置说明\n\njob_name:\"dockerswarm\": docker swarm 节点监控\n\ndockerswarm_sd_configs: 使用 prometheus 内置支持的 dockerswarm 服务发现配置\n\nhost: 配置 unix:///var/run/docker.sock 访问 docker 的守护进程\nrole: 配置为 node 用于访问表示监控 docker swarm 节点\n\n__meta_dockerswarm_node_address: 使用 docker swarm 节点地址替换 __address label\n__meta_dockerswarm_node_hostname: 使用 docker swarm hostname 替换 instance label\n\njob_name: 'dockertasks': docker task 监控, 监控容器\n\ndockerswarm_sd_configs: 同样使用 docker swarm 服务发现配置\n\nhost: 配置 unix:///var/run/docker.sock 访问 docker 的守护进程\nrole: 配置为 tasks 用于访问表示监控 docker swarm 运行的容器\n\n__meta_dockerswarm_task_desired_state: 过滤容器运行状态要保持容器状态微 running\n__meta_dockerswarm_container_label_com_docker_stack_namespace: 容器运行的命名空间, 对应的是 docker swarm 中的 stock , namespace 是 k8s 中不同环境之间隔离的划分名称, 这里过滤掉 stock 非 dev\n__meta_dockerswarm_container_label_external_metrics_enable: 过滤开启了监控的容器\n__address__: 替换默认监控容器的端口, 我习惯上使用容器内的 8080 端口作为服务的默认访问端口, 可以根据跟人习惯修改\n__meta_dockerswarm_service_label_com_docker_stack_namespace: 使用 stack 替换 namespace\n__meta_dockerswarm_service_name: 使用docker swarm的服务名称替换掉 application 和 serviceName label\n__meta_dockerswarm_task_id: 使用 task_id 替换掉 instance"
+  },
+  {
+    "objectID": "posts/prometheus/dockerswarm.html#docker_compose.yml-配置",
+    "href": "posts/prometheus/dockerswarm.html#docker_compose.yml-配置",
+    "title": "docker swarm 部署 prometheus 监控",
+    "section": "",
+    "text": "version: \"3.5\"\n\nservices:\n  prometheus:\n    image: prom/prometheus:latest\n    ports:\n      - \"9090:9090\"\n    user: root\n    deploy:\n      mode: replicated\n      replicas: 1\n      placement:\n        constraints:\n          - node.role == manager\n    networks:\n      - overlay\n    configs:\n      - source: prometheus_config\n        target: /etc/prometheus/prometheus.yml\n    command:\n      - '--config.file=/etc/prometheus/prometheus.yml'\n    volumes:\n      - /var/run/docker.sock:/var/run/docker.sock:ro\n\nconfigs:\n  prometheus_config:\n    file: ./prometheus.yml\n\nnetworks:\n  overlay:\n\nuser：root: 使用 root 用户创建容器，因为需要监听 docker.sock\n挂载 /var/run/docker.sock 监控 docker swarm 集群情况\n挂载配置使用当前目录的配置文件创建 docker config\n- node.role == manager: 将容器部署到 manager 节点\n加入到 overlay 网络\n启动时挂载刚刚创建的 prometheus.yml 文件到 docker config"
+  },
+  {
+    "objectID": "posts/prometheus/dockerswarm.html#在-docker-swarm-集群部署",
+    "href": "posts/prometheus/dockerswarm.html#在-docker-swarm-集群部署",
+    "title": "docker swarm 部署 prometheus 监控",
+    "section": "",
+    "text": "在目标 stack 环境部署 prometheus\n$ docker stack deploy -c docker_compose.yml {stack}\n\n\n\n\n\n\n注意\n\n\n\n如果是多套 stock 环境则必须每个 stock 中都要部署 prometheus 用于监控, 这是因为 docker swarm 默认的 overlay 网络之间不能互相通信. 同时每个容器只能配置唯一的 overlay 网络"
   },
   {
     "objectID": "projects.html",
@@ -46,6 +95,6 @@
     "href": "index.html",
     "title": "Blog",
     "section": "",
-    "text": "Welcome To My Blog\n\n\n\n\n\n\nnews\n\n\n\n想写一篇博客很久了，但是已知给自己找借口没有下定确定去做。可能过程中容易跑偏了。…之后应该会花一些时间在搭建 blog 上，正好让自己能每天有一些积累，之前一直搁置的事情也可以有一个动力做起来。\n\n\n\n\n\nApr 3, 2024\n\n\nLastnumber\n\n\n\n\n\n\n\n\n\n\n\n\n使用 Obsidian 编写 Quarto 博客\n\n\n\n\n\n\nobsidian\n\n\nquarto\n\n\n\n\n\n\n\n\n\nApr 3, 2024\n\n\n\n\n\n\n\n\n\n\n\n\n监控的选型\n\n\n\n\n\n\nnews\n\n\nmonitoring\n\n\nprometheus\n\n\n\n\n\n\n\n\n\nApr 3, 2024\n\n\nlastnumber\n\n\n\n\n\n\nNo matching items"
+    "text": "使用 Obsidian 编写 Quarto 博客\n\n\n\n\n\n\nobsidian\n\n\nquarto\n\n\n\n\n\n\n\n\n\nApr 8, 2024\n\n\n\n\n\n\n\n\n\n\n\n\ndocker swarm 部署 prometheus 监控\n\n\n\n\n\n\nnews\n\n\nmonitoring\n\n\nprometheus\n\n\ndocker swarm\n\n\n\n使用 prometheus 同时监控 docker swarm 集群的多个 stock\n\n\n\n\n\nApr 8, 2024\n\n\nlastnumber\n\n\n\n\n\n\n\n\n\n\n\n\n监控的选型\n\n\n\n\n\n\nnews\n\n\nmonitoring\n\n\nprometheus\n\n\n\n\n\n\n\n\n\nApr 3, 2024\n\n\nlastnumber\n\n\n\n\n\n\n\n\n\n\n\n\nWelcome To My Blog\n\n\n\n\n\n\nnew begin\n\n\n\n想写一篇博客很久了，但是已知给自己找借口没有下定确定去做。可能过程中容易跑偏了。…之后应该会花一些时间在搭建 blog 上，正好让自己能每天有一些积累，之前一直搁置的事情也可以有一个动力做起来。\n\n\n\n\n\nApr 14, 1990\n\n\nLastnumber\n\n\n\n\n\n\nNo matching items"
   }
 ]

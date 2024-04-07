@@ -2,9 +2,10 @@
   {
     "listing": "/index.html",
     "items": [
-      "/posts/welcome/index.html",
       "/posts/Obsidian/index.html",
-      "/posts/prometheus/index.html"
+      "/posts/prometheus/dockerswarm.html",
+      "/posts/prometheus/index.html",
+      "/posts/welcome/index.html"
     ]
   }
 ]

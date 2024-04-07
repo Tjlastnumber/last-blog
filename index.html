@@ -133,7 +133,7 @@ window.Quarto = {
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-sidebar docked nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top quarto-banner">
@@ -170,17 +170,30 @@ window.Quarto = {
 </div>
       </div> <!-- /container-fluid -->
     </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item">Blog</li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
 </header>
 <!-- content -->
 <header id="title-block-header" class="quarto-title-block default page-columns page-full">
   <div class="quarto-title-banner page-columns page-full">
-    <div class="quarto-title column-page-left">
+    <div class="quarto-title column-body">
       <h1 class="title">Blog</h1>
                       </div>
   </div>
     
   
-  <div class="quarto-title-meta column-page-left">
+  <div class="quarto-title-meta column-body">
 
       
     
@@ -190,12 +203,20 @@ window.Quarto = {
   
   </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(3)</span></div><div class="category" data-category="monitoring">monitoring <span class="quarto-category-count">(1)</span></div><div class="category" data-category="news">news <span class="quarto-category-count">(2)</span></div><div class="category" data-category="obsidian">obsidian <span class="quarto-category-count">(1)</span></div><div class="category" data-category="prometheus">prometheus <span class="quarto-category-count">(1)</span></div><div class="category" data-category="quarto">quarto <span class="quarto-category-count">(1)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(4)</span></div><div class="category" data-category="docker swarm">docker swarm <span class="quarto-category-count">(1)</span></div><div class="category" data-category="monitoring">monitoring <span class="quarto-category-count">(2)</span></div><div class="category" data-category="new begin">new begin <span class="quarto-category-count">(1)</span></div><div class="category" data-category="news">news <span class="quarto-category-count">(2)</span></div><div class="category" data-category="obsidian">obsidian <span class="quarto-category-count">(1)</span></div><div class="category" data-category="prometheus">prometheus <span class="quarto-category-count">(2)</span></div><div class="category" data-category="quarto">quarto <span class="quarto-category-count">(1)</span></div></div></div>
 <!-- main -->
-<main class="content quarto-banner-title-block column-page-left" id="quarto-document-content">
+<main class="content quarto-banner-title-block column-body" id="quarto-document-content">
 
 
 
@@ -207,40 +228,7 @@ window.Quarto = {
 
 <div class="quarto-listing quarto-listing-container-default" id="listing-listing">
 <div class="list quarto-listing-default">
-<div class="quarto-post image-right" data-index="0" data-categories="news" data-listing-date-sort="1712102400000" data-listing-file-modified-sort="1712285743779" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="11">
-<div class="thumbnail">
-<p><a href="./posts/welcome/index.html" class="no-external"></a></p><a href="./posts/welcome/index.html" class="no-external">
-<p class="card-img-top"><img src="posts/welcome/thumbnail.jpg"  class="thumbnail-image card-img"/></p>
-</a><p><a href="./posts/welcome/index.html" class="no-external"></a></p>
-</div>
-<div class="body">
-<h3 class="no-anchor listing-title">
-<a href="./posts/welcome/index.html" class="no-external">Welcome To My Blog</a>
-</h3>
-<div class="listing-subtitle">
-<a href="./posts/welcome/index.html" class="no-external"></a>
-</div>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('news'); return false;">
-news
-</div>
-</div>
-<div class="listing-description">
-<a href="./posts/welcome/index.html" class="no-external">想写一篇博客很久了，但是已知给自己找借口没有下定确定去做。可能过程中容易跑偏了。…之后应该会花一些时间在搭建 blog 上，正好让自己能每天有一些积累，之前一直搁置的事情也可以有一个动力做起来。</a>
-</div>
-</div>
-<div class="metadata">
-<a href="./posts/welcome/index.html" class="no-external">
-<div class="listing-date">
-Apr 3, 2024
-</div>
-<div class="listing-author">
-Lastnumber
-</div>
-</a>
-</div>
-</div>
-<div class="quarto-post image-right" data-index="1" data-categories="obsidian,quarto" data-listing-date-sort="1712102400000" data-listing-file-modified-sort="1712285743779" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="1">
+<div class="quarto-post image-right" data-index="0" data-categories="obsidian,quarto" data-listing-date-sort="1712534400000" data-listing-file-modified-sort="1712509946559" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="48">
 <div class="thumbnail">
 <p><a href="./posts/Obsidian/index.html" class="no-external"></a></p><a href="./posts/Obsidian/index.html" class="no-external">
 <p><img src="./posts/Obsidian/image.png" class="thumbnail-image"></p>
@@ -262,23 +250,60 @@ quarto
 </div>
 </div>
 <div class="listing-description">
-<a href="./posts/Obsidian/index.html" class="no-external">
-
-<p></p>
-
-
-</a>
+<a href="./posts/Obsidian/index.html" class="no-external">Obsidian是一款基于 Markdown 的笔记编辑器，具有双向链接、图形化关系展示、标签和目录管理等功能。它支持插件扩展，提供本地存储和加密，跨平台支持，并适用于个人知识管理、学习和项目管理。</a>
 </div>
 </div>
 <div class="metadata">
 <a href="./posts/Obsidian/index.html" class="no-external">
 <div class="listing-date">
-Apr 3, 2024
+Apr 8, 2024
 </div>
 </a>
 </div>
 </div>
-<div class="quarto-post image-right" data-index="2" data-categories="news,monitoring,prometheus" data-listing-date-sort="1712102400000" data-listing-file-modified-sort="1712285743779" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="1">
+<div class="quarto-post image-right" data-index="1" data-categories="news,monitoring,prometheus,docker swarm" data-listing-date-sort="1712534400000" data-listing-file-modified-sort="1712509946559" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="744">
+<div class="thumbnail">
+<p><a href="./posts/prometheus/dockerswarm.html" class="no-external"></a></p><a href="./posts/prometheus/dockerswarm.html" class="no-external">
+<p><img src="./posts/prometheus/docker_swarm.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/prometheus/dockerswarm.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/prometheus/dockerswarm.html" class="no-external">docker swarm 部署 prometheus 监控</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/prometheus/dockerswarm.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('news'); return false;">
+news
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('monitoring'); return false;">
+monitoring
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('prometheus'); return false;">
+prometheus
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('docker swarm'); return false;">
+docker swarm
+</div>
+</div>
+<div class="listing-description">
+<a href="./posts/prometheus/dockerswarm.html" class="no-external">使用 prometheus 同时监控 docker swarm 集群的多个 stock</a>
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/prometheus/dockerswarm.html" class="no-external">
+<div class="listing-date">
+Apr 8, 2024
+</div>
+<div class="listing-author">
+lastnumber
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="2" data-categories="news,monitoring,prometheus" data-listing-date-sort="1712102400000" data-listing-file-modified-sort="1712509946559" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="1">
 <div class="thumbnail">
 <p><a href="./posts/prometheus/index.html" class="no-external"></a></p><a href="./posts/prometheus/index.html" class="no-external">
 <p><img src="./posts/prometheus/image.png" class="thumbnail-image"></p>
@@ -317,6 +342,39 @@ Apr 3, 2024
 </div>
 <div class="listing-author">
 lastnumber
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="3" data-categories="new begin" data-listing-date-sort="640051200000" data-listing-file-modified-sort="1712509946559" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1" data-listing-word-count-sort="11">
+<div class="thumbnail">
+<p><a href="./posts/welcome/index.html" class="no-external"></a></p><a href="./posts/welcome/index.html" class="no-external">
+<p class="card-img-top"><img src="posts/welcome/thumbnail.jpg"  class="thumbnail-image card-img"/></p>
+</a><p><a href="./posts/welcome/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/welcome/index.html" class="no-external">Welcome To My Blog</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/welcome/index.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('new begin'); return false;">
+new begin
+</div>
+</div>
+<div class="listing-description">
+<a href="./posts/welcome/index.html" class="no-external">想写一篇博客很久了，但是已知给自己找借口没有下定确定去做。可能过程中容易跑偏了。…之后应该会花一些时间在搭建 blog 上，正好让自己能每天有一些积累，之前一直搁置的事情也可以有一个动力做起来。</a>
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/welcome/index.html" class="no-external">
+<div class="listing-date">
+Apr 14, 1990
+</div>
+<div class="listing-author">
+Lastnumber
 </div>
 </a>
 </div>
@@ -880,6 +938,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item">
+ Copyright 2024, Lastnumber
+  </li>  
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/tjlastnumber">
+      <i class="bi bi-github" role="img">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
 
 
 
