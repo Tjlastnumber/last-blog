@@ -1,8 +1,10 @@
 ---
 title: Blog
 listing:
-  contents: posts
-  sort: date desc
+  contents: 
+    - "posts"
+    - "prometheus/*.qmd"
+  sort: "date desc"
   type: default
   categories: true
   sort-ui: false

@@ -9,12 +9,22 @@ website:
       - projects.qmd
       - icon: github
         href: https://github.com/tjlastnumber
-format:
+  sidebar:
+    style: docked
+    search: true
+  page-footer: 
+    center: 
+      - text: "Copyright 2024, Lastnumber"
+      - icon: github
+        href: https://github.com/tjlastnumber
+
+format: 
   html:
     theme: 
       light: cosmo
       dark: [cyborg, theme-dark.scss]
     css: styles.css
+    toc: true
 
 execute:
   freeze: auto

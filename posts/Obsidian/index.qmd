@@ -3,9 +3,34 @@ title: 使用 Obsidian 编写 Quarto 博客
 categories:
   - obsidian
   - quarto
-date: 2024-04-03
+date: 2024-04-08
 image: image.png
 ---
 # 使用 Obsidian 编写 Quarto 博客
 
 ![](./image.png)
+
+
+## Obsidian 介绍
+  
+Obsidian是一款基于 Markdown 的笔记编辑器，具有双向链接、图形化关系展示、标签和目录管理等功能。它支持插件扩展，提供本地存储和加密，跨平台支持，并适用于个人知识管理、学习和项目管理。
+
+之前我用过[印象笔记（Evernote)](https://www.yinxiang.com/)、[Notion](https://www.notion.so/)、[Joplin]([laurent22/joplin: Joplin - the secure note taking and to-do app with synchronisation capabilities for Windows, macOS, Linux, Android and iOS. (github.com)](https://github.com/laurent22/joplin))：
+
+- 印象笔记：比较老牌的笔记管理工具，但当时对 markdown 文档支持不是那么理想，设计上也是传统的页面，而且不支持插件。他的优势在于对网页的快速保存。所以现在是作为我的网页收藏夹来使用。
+- Joplin：是比较现代的化的 markdown 编辑器，优点是支持插件、可以云盘存储比如
+
+## Quarto 介绍
+
+```markdown
+---
+title: 使用 Obsidian 编写 Quarto 博客
+categories:
+  - obsidian
+  - quarto
+date: 2024-04-03
+image: image.png
+---
+```
+
+

@@ -1,9 +1,9 @@
 ---
 title: Welcome To My Blog
 author: Lastnumber
-date: 2024-04-03
+date: 1990-04-14
 categories:
-  - news
+  - new begin
 description: 想写一篇博客很久了，但是已知给自己找借口没有下定确定去做。可能过程中容易跑偏了。...之后应该会花一些时间在搭建 blog 上，正好让自己能每天有一些积累，之前一直搁置的事情也可以有一个动力做起来。
 ---
 # 我的第一篇 Blog 
