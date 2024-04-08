@@ -62,66 +62,64 @@ alerting:
           # - alertmanager:9093
           
 scrape_configs:
-  - job_name: "dockerswarm"
-    dockerswarm_sd_configs:
+  - job_name: "dockerswarm"                                                                             # <1>
+    dockerswarm_sd_configs:                                                                             # <2>
       - host: unix:///var/run/docker.sock
         role: nodes
     relabel_configs:
-      - source_labels: [__meta_dockerswarm_node_address]
+      - source_labels: [__meta_dockerswarm_node_address]                                                # <3>
         target_label: __address__
         replacement: $1:9323
-      - source_labels: [__meta_dockerswarm_node_hostname]
+      - source_labels: [__meta_dockerswarm_node_hostname]                                               # <4>
         target_label: instance
 
-  - job_name: 'dockertasks'
+  - job_name: 'dockertasks'                                                                             # <5>
     metrics_path: /actuator/prometheus
     dockerswarm_sd_configs:
       - host: unix:///var/run/docker.sock
         role: tasks
     relabel_configs:
       # Only keep containers that should be running.
-      - source_labels: [__meta_dockerswarm_task_desired_state]
+      - source_labels: [__meta_dockerswarm_task_desired_state]                                          # <6>
         regex: running
         action: keep
-      - source_labels: [__meta_dockerswarm_container_label_com_docker_stack_namespace]
+      - source_labels: [__meta_dockerswarm_container_label_com_docker_stack_namespace]                  # <7>
         regex: dev
         action: keep
-      - source_labels: [__meta_dockerswarm_container_label_external_metrics_enable]
+      - source_labels: [__meta_dockerswarm_container_label_external_metrics_enable]                     # <8>
         regex: true
         action: keep
-      - source_labels: [__address__]
+      - source_labels: [__address__]                                                                    # <9>
         target_label: __address__
         regex: '(.+):.*'
         replacement: $1:8080
-      - source_labels: [__meta_dockerswarm_service_label_com_docker_stack_namespace]
+      - source_labels: [__meta_dockerswarm_service_label_com_docker_stack_namespace]                    # <10>
         target_label: namespace
-      - source_labels: [__meta_dockerswarm_service_name]
+      - source_labels: [__meta_dockerswarm_service_name]                                                # <11>
         target_label: serviceName
-      - source_labels: [__meta_dockerswarm_service_name]
+      - source_labels: [__meta_dockerswarm_service_name]                                                # <12>
         target_label: application
-      - source_labels: [__meta_dockerswarm_task_id]
+      - source_labels: [__meta_dockerswarm_task_id]                                                     # <13>
         target_label: instance
 ```
 
-配置说明
-
-- `job_name:"dockerswarm"`: docker swarm 节点监控
-	- `dockerswarm_sd_configs`: 使用 `prometheus` 内置支持的 `dockerswarm` 服务发现配置
-		- `host`: 配置 `unix:///var/run/docker.sock` 访问 docker 的守护进程
-		- `role`: 配置为 `node` 用于访问表示监控 `docker swarm` 节点
-	- `__meta_dockerswarm_node_address`: 使用 docker swarm 节点地址替换 `__address` label
-	- `__meta_dockerswarm_node_hostname`: 使用 docker swarm hostname 替换 `instance` label
-- `job_name: 'dockertasks'`: docker task 监控, 监控容器
-	- `dockerswarm_sd_configs`: 同样使用 docker swarm 服务发现配置
+1. `job_name:"dockerswarm"`: docker swarm 节点监控
+2. `dockerswarm_sd_configs`: 使用 `prometheus` 内置支持的 `dockerswarm` 服务发现配置
+	-	`host`: 配置 `unix:///var/run/docker.sock` 访问 docker 的守护进程
+	- `role`: 配置为 `node` 用于访问表示监控 `docker swarm` 节点
+3. `__meta_dockerswarm_node_address`: 使用 docker swarm 节点地址替换 `__address` label
+4. `__meta_dockerswarm_node_hostname`: 使用 docker swarm hostname 替换 `instance` label
+5. `job_name: 'dockertasks'`: docker task 监控, 监控容器
+6. `dockerswarm_sd_configs`: 同样使用 docker swarm 服务发现配置
 		- `host`: 配置 `unix:///var/run/docker.sock` 访问 docker 的守护进程
 		- `role`: 配置为 `tasks` 用于访问表示监控 `docker swarm` 运行的容器
-	- `__meta_dockerswarm_task_desired_state`: 过滤容器运行状态要保持容器状态微 `running`
-	- `__meta_dockerswarm_container_label_com_docker_stack_namespace`: 容器运行的命名空间, 对应的是 docker swarm 中的 `stock` , `namespace` 是 `k8s` 中不同环境之间隔离的划分名称, 这里过滤掉 `stock` 非 `dev` 
-	- `__meta_dockerswarm_container_label_external_metrics_enable`: 过滤开启了监控的容器
-	- `__address__`: 替换默认监控容器的端口, 我习惯上使用容器内的 `8080` 端口作为服务的默认访问端口, 可以根据跟人习惯修改
-	- `__meta_dockerswarm_service_label_com_docker_stack_namespace`: 使用 `stack` 替换 `namespace`
-	- `__meta_dockerswarm_service_name`: 使用`docker swarm`的服务名称替换掉 `application` 和 `serviceName` label
-	- `__meta_dockerswarm_task_id`: 使用 `task_id` 替换掉 `instance`
+7. `__meta_dockerswarm_task_desired_state`: 过滤容器运行状态要保持容器状态微 `running`
+8. `__meta_dockerswarm_container_label_com_docker_stack_namespace`: 容器运行的命名空间, 对应的是 docker swarm 中的 `stock` , `namespace` 是 `k8s` 中不同环境之间隔离的划分名称, 这里过滤掉 `stock` 非 `dev` 
+9. `__meta_dockerswarm_container_label_external_metrics_enable`: 过滤开启了监控的容器
+10. `__address__`: 替换默认监控容器的端口, 我习惯上使用容器内的 `8080` 端口作为服务的默认访问端口, 可以根据跟人习惯修改
+11. `__meta_dockerswarm_service_label_com_docker_stack_namespace`: 使用 `stack` 替换 `namespace`
+12. `__meta_dockerswarm_service_name`: 使用`docker swarm`的服务名称替换掉 `application` 和 `serviceName` label
+13. `__meta_dockerswarm_task_id`: 使用 `task_id` 替换掉 `instance`
 
 ## docker_compose.yml 配置
 
@@ -133,43 +131,43 @@ services:
     image: prom/prometheus:latest
     ports:
       - "9090:9090"
-    user: root
+    user: root                                           # <1>
     deploy:
       mode: replicated
       replicas: 1
       placement:
         constraints:
-          - node.role == manager
+          - node.role == manager                         # <2>
     networks:
       - overlay
     configs:
-      - source: prometheus_config
+      - source: prometheus_config                        # <3>
         target: /etc/prometheus/prometheus.yml
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--config.file=/etc/prometheus/prometheus.yml'   # <4>
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro     # <5>
 
 configs:
   prometheus_config:
-    file: ./prometheus.yml
+    file: ./prometheus.yml                                # <6>
 
 networks:
   overlay:
 ```
 
-- `user：root`: 使用 root 用户创建容器，因为需要监听 `docker.sock`
-- 挂载 `/var/run/docker.sock` 监控 docker swarm 集群情况
-- 挂载配置使用当前目录的配置文件创建 `docker config`
-- `- node.role == manager`: 将容器部署到 manager 节点
-- 加入到 overlay 网络
-- 启动时挂载刚刚创建的 `prometheus.yml` 文件到 `docker config`
+1. `user：root`: 使用 root 用户创建容器，因为需要监听 `docker.sock`
+2. `node.role == manager`: 设置角色为 `manager`, 因为需要将 `prometheus` 容器运行在 `docker swarm` 的主节点上
+3. `prometheus_config`: 是上一步设置的 `docker config` 名称
+4. `config.file=/etc/prometheus/prometheus.yml`: 设置 `prometheus` 启动时使用的命令
+5. `/var/run/docker.sock:/var/run/docker.sock:ro`: 挂载 `docker` 的守护进程
+6. `configs`: 对应 <3> 的配置设置, 指定使用当前启动 docker_compose.yml 文件的相对路径下的 `prometheus.yml`
 
 ## 在 docker swarm 集群部署
 
 在目标 stack 环境部署 prometheus
 
-```shell
+```bash
 $ docker stack deploy -c docker_compose.yml {stack}
 ```
 
@@ -180,4 +178,3 @@ $ docker stack deploy -c docker_compose.yml {stack}
 如果是多套 `stock` 环境则必须每个 `stock` 中都要部署 prometheus 用于监控, 这是因为 docker swarm 默认的 overlay 网络之间不能互相通信. 同时每个容器只能配置唯一的 overlay 网络
 
 :::
-
