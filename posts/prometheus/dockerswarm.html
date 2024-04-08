@@ -271,133 +271,177 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="在-docker-swarm-创建-configs" class="level2">
 <h2 class="anchored" data-anchor-id="在-docker-swarm-创建-configs">在 docker swarm 创建 configs</h2>
 <p>在当前目录创建 prometheus.yml 文件:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># my global config</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">global</span><span class="kw">:</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">scrape_interval</span><span class="kw">:</span><span class="at"> 1m</span><span class="co"> # Set the scrape interval to every 15 seconds. Default is every 1 minute.</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">evaluation_interval</span><span class="kw">:</span><span class="at"> 1m</span><span class="co"> # Evaluate rules every 15 seconds. The default is every 1 minute.</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">scrape_timeout</span><span class="kw">:</span><span class="at"> 10s</span><span class="co"> # scrape_timeout is set to the global default (10s).</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Alertmanager configuration</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">alerting</span><span class="kw">:</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">alertmanagers</span><span class="kw">:</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">static_configs</span><span class="kw">:</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> </span><span class="fu">targets</span><span class="kw">:</span></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co">          # - alertmanager:9093</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="at">          </span></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="fu">scrape_configs</span><span class="kw">:</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">job_name</span><span class="kw">:</span><span class="at"> </span><span class="st">"dockerswarm"</span></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">dockerswarm_sd_configs</span><span class="kw">:</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">host</span><span class="kw">:</span><span class="at"> unix:///var/run/docker.sock</span></span>
-<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">role</span><span class="kw">:</span><span class="at"> nodes</span></span>
-<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">relabel_configs</span><span class="kw">:</span></span>
-<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_node_address</span><span class="kw">]</span></span>
-<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> __address__</span></span>
-<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">replacement</span><span class="kw">:</span><span class="at"> $1:9323</span></span>
-<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_node_hostname</span><span class="kw">]</span></span>
-<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> instance</span></span>
-<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">job_name</span><span class="kw">:</span><span class="at"> </span><span class="st">'dockertasks'</span></span>
-<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">metrics_path</span><span class="kw">:</span><span class="at"> /actuator/prometheus</span></span>
-<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">dockerswarm_sd_configs</span><span class="kw">:</span></span>
-<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">host</span><span class="kw">:</span><span class="at"> unix:///var/run/docker.sock</span></span>
-<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">role</span><span class="kw">:</span><span class="at"> tasks</span></span>
-<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">relabel_configs</span><span class="kw">:</span></span>
-<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a><span class="co">      # Only keep containers that should be running.</span></span>
-<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_task_desired_state</span><span class="kw">]</span></span>
-<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">regex</span><span class="kw">:</span><span class="at"> running</span></span>
-<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">action</span><span class="kw">:</span><span class="at"> keep</span></span>
-<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_container_label_com_docker_stack_namespace</span><span class="kw">]</span></span>
-<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">regex</span><span class="kw">:</span><span class="at"> dev</span></span>
-<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">action</span><span class="kw">:</span><span class="at"> keep</span></span>
-<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_container_label_external_metrics_enable</span><span class="kw">]</span></span>
-<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">regex</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
-<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">action</span><span class="kw">:</span><span class="at"> keep</span></span>
-<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__address__</span><span class="kw">]</span></span>
-<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> __address__</span></span>
-<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">regex</span><span class="kw">:</span><span class="at"> </span><span class="st">'(.+):.*'</span></span>
-<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">replacement</span><span class="kw">:</span><span class="at"> $1:8080</span></span>
-<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_service_label_com_docker_stack_namespace</span><span class="kw">]</span></span>
-<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> namespace</span></span>
-<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_service_name</span><span class="kw">]</span></span>
-<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> serviceName</span></span>
-<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_service_name</span><span class="kw">]</span></span>
-<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> application</span></span>
-<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_task_id</span><span class="kw">]</span></span>
-<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> instance</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>配置说明</p>
-<ul>
-<li><code>job_name:"dockerswarm"</code>: docker swarm 节点监控
-<ul>
-<li><code>dockerswarm_sd_configs</code>: 使用 <code>prometheus</code> 内置支持的 <code>dockerswarm</code> 服务发现配置
-<ul>
-<li><code>host</code>: 配置 <code>unix:///var/run/docker.sock</code> 访问 docker 的守护进程</li>
-<li><code>role</code>: 配置为 <code>node</code> 用于访问表示监控 <code>docker swarm</code> 节点</li>
-</ul></li>
-<li><code>__meta_dockerswarm_node_address</code>: 使用 docker swarm 节点地址替换 <code>__address</code> label</li>
-<li><code>__meta_dockerswarm_node_hostname</code>: 使用 docker swarm hostname 替换 <code>instance</code> label</li>
-</ul></li>
-<li><code>job_name: 'dockertasks'</code>: docker task 监控, 监控容器
-<ul>
-<li><code>dockerswarm_sd_configs</code>: 同样使用 docker swarm 服务发现配置
-<ul>
-<li><code>host</code>: 配置 <code>unix:///var/run/docker.sock</code> 访问 docker 的守护进程</li>
-<li><code>role</code>: 配置为 <code>tasks</code> 用于访问表示监控 <code>docker swarm</code> 运行的容器</li>
-</ul></li>
-<li><code>__meta_dockerswarm_task_desired_state</code>: 过滤容器运行状态要保持容器状态微 <code>running</code></li>
-<li><code>__meta_dockerswarm_container_label_com_docker_stack_namespace</code>: 容器运行的命名空间, 对应的是 docker swarm 中的 <code>stock</code> , <code>namespace</code> 是 <code>k8s</code> 中不同环境之间隔离的划分名称, 这里过滤掉 <code>stock</code> 非 <code>dev</code></li>
-<li><code>__meta_dockerswarm_container_label_external_metrics_enable</code>: 过滤开启了监控的容器</li>
-<li><code>__address__</code>: 替换默认监控容器的端口, 我习惯上使用容器内的 <code>8080</code> 端口作为服务的默认访问端口, 可以根据跟人习惯修改</li>
-<li><code>__meta_dockerswarm_service_label_com_docker_stack_namespace</code>: 使用 <code>stack</code> 替换 <code>namespace</code></li>
-<li><code>__meta_dockerswarm_service_name</code>: 使用<code>docker swarm</code>的服务名称替换掉 <code>application</code> 和 <code>serviceName</code> label</li>
-<li><code>__meta_dockerswarm_task_id</code>: 使用 <code>task_id</code> 替换掉 <code>instance</code></li>
-</ul></li>
-</ul>
+<div class="sourceCode" id="annotated-cell-3"><pre class="sourceCode yaml code-annotation-code code-with-copy code-annotated"><code class="sourceCode yaml"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># my global config</span></span>
+<span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">global</span><span class="kw">:</span></span>
+<span id="annotated-cell-3-3"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">scrape_interval</span><span class="kw">:</span><span class="at"> 1m</span><span class="co"> # Set the scrape interval to every 15 seconds. Default is every 1 minute.</span></span>
+<span id="annotated-cell-3-4"><a href="#annotated-cell-3-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">evaluation_interval</span><span class="kw">:</span><span class="at"> 1m</span><span class="co"> # Evaluate rules every 15 seconds. The default is every 1 minute.</span></span>
+<span id="annotated-cell-3-5"><a href="#annotated-cell-3-5" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">scrape_timeout</span><span class="kw">:</span><span class="at"> 10s</span><span class="co"> # scrape_timeout is set to the global default (10s).</span></span>
+<span id="annotated-cell-3-6"><a href="#annotated-cell-3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-3-7"><a href="#annotated-cell-3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Alertmanager configuration</span></span>
+<span id="annotated-cell-3-8"><a href="#annotated-cell-3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">alerting</span><span class="kw">:</span></span>
+<span id="annotated-cell-3-9"><a href="#annotated-cell-3-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">alertmanagers</span><span class="kw">:</span></span>
+<span id="annotated-cell-3-10"><a href="#annotated-cell-3-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">static_configs</span><span class="kw">:</span></span>
+<span id="annotated-cell-3-11"><a href="#annotated-cell-3-11" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="kw">-</span><span class="at"> </span><span class="fu">targets</span><span class="kw">:</span></span>
+<span id="annotated-cell-3-12"><a href="#annotated-cell-3-12" aria-hidden="true" tabindex="-1"></a><span class="co">          # - alertmanager:9093</span></span>
+<span id="annotated-cell-3-13"><a href="#annotated-cell-3-13" aria-hidden="true" tabindex="-1"></a><span class="at">          </span></span>
+<span id="annotated-cell-3-14"><a href="#annotated-cell-3-14" aria-hidden="true" tabindex="-1"></a><span class="fu">scrape_configs</span><span class="kw">:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-3-15" class="code-annotation-target"><a href="#annotated-cell-3-15" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">job_name</span><span class="kw">:</span><span class="at"> </span><span class="st">"dockerswarm"</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-3-16" class="code-annotation-target"><a href="#annotated-cell-3-16" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">dockerswarm_sd_configs</span><span class="kw">:</span></span>
+<span id="annotated-cell-3-17"><a href="#annotated-cell-3-17" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">host</span><span class="kw">:</span><span class="at"> unix:///var/run/docker.sock</span></span>
+<span id="annotated-cell-3-18"><a href="#annotated-cell-3-18" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">role</span><span class="kw">:</span><span class="at"> nodes</span></span>
+<span id="annotated-cell-3-19"><a href="#annotated-cell-3-19" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">relabel_configs</span><span class="kw">:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-3-20" class="code-annotation-target"><a href="#annotated-cell-3-20" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_node_address</span><span class="kw">]</span></span>
+<span id="annotated-cell-3-21"><a href="#annotated-cell-3-21" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> __address__</span></span>
+<span id="annotated-cell-3-22"><a href="#annotated-cell-3-22" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">replacement</span><span class="kw">:</span><span class="at"> $1:9323</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-3-23" class="code-annotation-target"><a href="#annotated-cell-3-23" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_node_hostname</span><span class="kw">]</span></span>
+<span id="annotated-cell-3-24"><a href="#annotated-cell-3-24" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> instance</span></span>
+<span id="annotated-cell-3-25"><a href="#annotated-cell-3-25" aria-hidden="true" tabindex="-1"></a></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-3-26" class="code-annotation-target"><a href="#annotated-cell-3-26" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="kw">-</span><span class="at"> </span><span class="fu">job_name</span><span class="kw">:</span><span class="at"> </span><span class="st">'dockertasks'</span></span>
+<span id="annotated-cell-3-27"><a href="#annotated-cell-3-27" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">metrics_path</span><span class="kw">:</span><span class="at"> /actuator/prometheus</span></span>
+<span id="annotated-cell-3-28"><a href="#annotated-cell-3-28" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">dockerswarm_sd_configs</span><span class="kw">:</span></span>
+<span id="annotated-cell-3-29"><a href="#annotated-cell-3-29" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">host</span><span class="kw">:</span><span class="at"> unix:///var/run/docker.sock</span></span>
+<span id="annotated-cell-3-30"><a href="#annotated-cell-3-30" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">role</span><span class="kw">:</span><span class="at"> tasks</span></span>
+<span id="annotated-cell-3-31"><a href="#annotated-cell-3-31" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">relabel_configs</span><span class="kw">:</span></span>
+<span id="annotated-cell-3-32"><a href="#annotated-cell-3-32" aria-hidden="true" tabindex="-1"></a><span class="co">      # Only keep containers that should be running.</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-3-33" class="code-annotation-target"><a href="#annotated-cell-3-33" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_task_desired_state</span><span class="kw">]</span></span>
+<span id="annotated-cell-3-34"><a href="#annotated-cell-3-34" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">regex</span><span class="kw">:</span><span class="at"> running</span></span>
+<span id="annotated-cell-3-35"><a href="#annotated-cell-3-35" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">action</span><span class="kw">:</span><span class="at"> keep</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="7" onclick="event.preventDefault();">7</a><span id="annotated-cell-3-36" class="code-annotation-target"><a href="#annotated-cell-3-36" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_container_label_com_docker_stack_namespace</span><span class="kw">]</span></span>
+<span id="annotated-cell-3-37"><a href="#annotated-cell-3-37" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">regex</span><span class="kw">:</span><span class="at"> dev</span></span>
+<span id="annotated-cell-3-38"><a href="#annotated-cell-3-38" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">action</span><span class="kw">:</span><span class="at"> keep</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="8" onclick="event.preventDefault();">8</a><span id="annotated-cell-3-39" class="code-annotation-target"><a href="#annotated-cell-3-39" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_container_label_external_metrics_enable</span><span class="kw">]</span></span>
+<span id="annotated-cell-3-40"><a href="#annotated-cell-3-40" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">regex</span><span class="kw">:</span><span class="at"> </span><span class="ch">true</span></span>
+<span id="annotated-cell-3-41"><a href="#annotated-cell-3-41" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">action</span><span class="kw">:</span><span class="at"> keep</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="9" onclick="event.preventDefault();">9</a><span id="annotated-cell-3-42" class="code-annotation-target"><a href="#annotated-cell-3-42" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__address__</span><span class="kw">]</span></span>
+<span id="annotated-cell-3-43"><a href="#annotated-cell-3-43" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> __address__</span></span>
+<span id="annotated-cell-3-44"><a href="#annotated-cell-3-44" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">regex</span><span class="kw">:</span><span class="at"> </span><span class="st">'(.+):.*'</span></span>
+<span id="annotated-cell-3-45"><a href="#annotated-cell-3-45" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">replacement</span><span class="kw">:</span><span class="at"> $1:8080</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="10" onclick="event.preventDefault();">10</a><span id="annotated-cell-3-46" class="code-annotation-target"><a href="#annotated-cell-3-46" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_service_label_com_docker_stack_namespace</span><span class="kw">]</span></span>
+<span id="annotated-cell-3-47"><a href="#annotated-cell-3-47" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> namespace</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="11" onclick="event.preventDefault();">11</a><span id="annotated-cell-3-48" class="code-annotation-target"><a href="#annotated-cell-3-48" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_service_name</span><span class="kw">]</span></span>
+<span id="annotated-cell-3-49"><a href="#annotated-cell-3-49" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> serviceName</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="12" onclick="event.preventDefault();">12</a><span id="annotated-cell-3-50" class="code-annotation-target"><a href="#annotated-cell-3-50" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_service_name</span><span class="kw">]</span></span>
+<span id="annotated-cell-3-51"><a href="#annotated-cell-3-51" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> application</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-3" data-target-annotation="13" onclick="event.preventDefault();">13</a><span id="annotated-cell-3-52" class="code-annotation-target"><a href="#annotated-cell-3-52" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source_labels</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="at">__meta_dockerswarm_task_id</span><span class="kw">]</span></span>
+<span id="annotated-cell-3-53"><a href="#annotated-cell-3-53" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target_label</span><span class="kw">:</span><span class="at"> instance</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-3" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="15" data-code-annotation="1"><code>job_name:"dockerswarm"</code>: docker swarm 节点监控</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="16" data-code-annotation="2"><code>dockerswarm_sd_configs</code>: 使用 <code>prometheus</code> 内置支持的 <code>dockerswarm</code> 服务发现配置</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="20" data-code-annotation="3"><code>__meta_dockerswarm_node_address</code>: 使用 docker swarm 节点地址替换 <code>__address</code> label</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="23" data-code-annotation="4"><code>__meta_dockerswarm_node_hostname</code>: 使用 docker swarm hostname 替换 <code>instance</code> label</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="5">5</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="26" data-code-annotation="5"><code>job_name: 'dockertasks'</code>: docker task 监控, 监控容器</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="6">6</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="33" data-code-annotation="6"><code>dockerswarm_sd_configs</code>: 同样使用 docker swarm 服务发现配置 - <code>host</code>: 配置 <code>unix:///var/run/docker.sock</code> 访问 docker 的守护进程 - <code>role</code>: 配置为 <code>tasks</code> 用于访问表示监控 <code>docker swarm</code> 运行的容器</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="7">7</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="36" data-code-annotation="7"><code>__meta_dockerswarm_task_desired_state</code>: 过滤容器运行状态要保持容器状态微 <code>running</code></span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="8">8</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="39" data-code-annotation="8"><code>__meta_dockerswarm_container_label_com_docker_stack_namespace</code>: 容器运行的命名空间, 对应的是 docker swarm 中的 <code>stock</code> , <code>namespace</code> 是 <code>k8s</code> 中不同环境之间隔离的划分名称, 这里过滤掉 <code>stock</code> 非 <code>dev</code></span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="9">9</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="42" data-code-annotation="9"><code>__meta_dockerswarm_container_label_external_metrics_enable</code>: 过滤开启了监控的容器</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="10">10</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="46" data-code-annotation="10"><code>__address__</code>: 替换默认监控容器的端口, 我习惯上使用容器内的 <code>8080</code> 端口作为服务的默认访问端口, 可以根据跟人习惯修改</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="11">11</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="48" data-code-annotation="11"><code>__meta_dockerswarm_service_label_com_docker_stack_namespace</code>: 使用 <code>stack</code> 替换 <code>namespace</code></span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="12">12</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="50" data-code-annotation="12"><code>__meta_dockerswarm_service_name</code>: 使用<code>docker swarm</code>的服务名称替换掉 <code>application</code> 和 <code>serviceName</code> label</span>
+</dd>
+<dt data-target-cell="annotated-cell-3" data-target-annotation="13">13</dt>
+<dd>
+<span data-code-cell="annotated-cell-3" data-code-lines="52" data-code-annotation="13"><code>__meta_dockerswarm_task_id</code>: 使用 <code>task_id</code> 替换掉 <code>instance</code></span>
+</dd>
+</dl>
 </section>
 <section id="docker_compose.yml-配置" class="level2">
 <h2 class="anchored" data-anchor-id="docker_compose.yml-配置">docker_compose.yml 配置</h2>
-<div class="sourceCode" id="cb4"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">"3.5"</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">prometheus</span><span class="kw">:</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> prom/prometheus:latest</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">"9090:9090"</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">user</span><span class="kw">:</span><span class="at"> root</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">deploy</span><span class="kw">:</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">mode</span><span class="kw">:</span><span class="at"> replicated</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">replicas</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">placement</span><span class="kw">:</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">constraints</span><span class="kw">:</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="kw">-</span><span class="at"> node.role == manager</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">networks</span><span class="kw">:</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> overlay</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">configs</span><span class="kw">:</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> prometheus_config</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target</span><span class="kw">:</span><span class="at"> /etc/prometheus/prometheus.yml</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">'--config.file=/etc/prometheus/prometheus.yml'</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> /var/run/docker.sock:/var/run/docker.sock:ro</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="fu">configs</span><span class="kw">:</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">prometheus_config</span><span class="kw">:</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">file</span><span class="kw">:</span><span class="at"> ./prometheus.yml</span></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="fu">networks</span><span class="kw">:</span></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">overlay</span><span class="kw">:</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<ul>
-<li><code>user：root</code>: 使用 root 用户创建容器，因为需要监听 <code>docker.sock</code></li>
-<li>挂载 <code>/var/run/docker.sock</code> 监控 docker swarm 集群情况</li>
-<li>挂载配置使用当前目录的配置文件创建 <code>docker config</code></li>
-<li><code>- node.role == manager</code>: 将容器部署到 manager 节点</li>
-<li>加入到 overlay 网络</li>
-<li>启动时挂载刚刚创建的 <code>prometheus.yml</code> 文件到 <code>docker config</code></li>
-</ul>
+<div class="sourceCode" id="annotated-cell-4"><pre class="sourceCode yaml code-annotation-code code-with-copy code-annotated"><code class="sourceCode yaml"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">"3.5"</span></span>
+<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
+<span id="annotated-cell-4-4"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">prometheus</span><span class="kw">:</span></span>
+<span id="annotated-cell-4-5"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> prom/prometheus:latest</span></span>
+<span id="annotated-cell-4-6"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
+<span id="annotated-cell-4-7"><a href="#annotated-cell-4-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">"9090:9090"</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-8" class="code-annotation-target"><a href="#annotated-cell-4-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">user</span><span class="kw">:</span><span class="at"> root</span></span>
+<span id="annotated-cell-4-9"><a href="#annotated-cell-4-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">deploy</span><span class="kw">:</span></span>
+<span id="annotated-cell-4-10"><a href="#annotated-cell-4-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">mode</span><span class="kw">:</span><span class="at"> replicated</span></span>
+<span id="annotated-cell-4-11"><a href="#annotated-cell-4-11" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">replicas</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="annotated-cell-4-12"><a href="#annotated-cell-4-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">placement</span><span class="kw">:</span></span>
+<span id="annotated-cell-4-13"><a href="#annotated-cell-4-13" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">constraints</span><span class="kw">:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-4-14" class="code-annotation-target"><a href="#annotated-cell-4-14" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="kw">-</span><span class="at"> node.role == manager</span></span>
+<span id="annotated-cell-4-15"><a href="#annotated-cell-4-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">networks</span><span class="kw">:</span></span>
+<span id="annotated-cell-4-16"><a href="#annotated-cell-4-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> overlay</span></span>
+<span id="annotated-cell-4-17"><a href="#annotated-cell-4-17" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">configs</span><span class="kw">:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-4-18" class="code-annotation-target"><a href="#annotated-cell-4-18" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> prometheus_config</span></span>
+<span id="annotated-cell-4-19"><a href="#annotated-cell-4-19" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target</span><span class="kw">:</span><span class="at"> /etc/prometheus/prometheus.yml</span></span>
+<span id="annotated-cell-4-20"><a href="#annotated-cell-4-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-4-21" class="code-annotation-target"><a href="#annotated-cell-4-21" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">'--config.file=/etc/prometheus/prometheus.yml'</span></span>
+<span id="annotated-cell-4-22"><a href="#annotated-cell-4-22" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-4-23" class="code-annotation-target"><a href="#annotated-cell-4-23" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> /var/run/docker.sock:/var/run/docker.sock:ro</span></span>
+<span id="annotated-cell-4-24"><a href="#annotated-cell-4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-25"><a href="#annotated-cell-4-25" aria-hidden="true" tabindex="-1"></a><span class="fu">configs</span><span class="kw">:</span></span>
+<span id="annotated-cell-4-26"><a href="#annotated-cell-4-26" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">prometheus_config</span><span class="kw">:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-4-27" class="code-annotation-target"><a href="#annotated-cell-4-27" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">file</span><span class="kw">:</span><span class="at"> ./prometheus.yml</span></span>
+<span id="annotated-cell-4-28"><a href="#annotated-cell-4-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-4-29"><a href="#annotated-cell-4-29" aria-hidden="true" tabindex="-1"></a><span class="fu">networks</span><span class="kw">:</span></span>
+<span id="annotated-cell-4-30"><a href="#annotated-cell-4-30" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">overlay</span><span class="kw">:</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<dl class="code-annotation-container-grid">
+<dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="8" data-code-annotation="1"><code>user：root</code>: 使用 root 用户创建容器，因为需要监听 <code>docker.sock</code></span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="14" data-code-annotation="2"><code>node.role == manager</code>: 设置角色为 <code>manager</code>, 因为需要将 <code>prometheus</code> 容器运行在 <code>docker swarm</code> 的主节点上</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="3">3</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="18" data-code-annotation="3"><code>prometheus_config</code>: 是上一步设置的 <code>docker config</code> 名称</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="4">4</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="21" data-code-annotation="4"><code>config.file=/etc/prometheus/prometheus.yml</code>: 设置 <code>prometheus</code> 启动时使用的命令</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="5">5</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="23" data-code-annotation="5"><code>/var/run/docker.sock:/var/run/docker.sock:ro</code>: 挂载 <code>docker</code> 的守护进程</span>
+</dd>
+<dt data-target-cell="annotated-cell-4" data-target-annotation="6">6</dt>
+<dd>
+<span data-code-cell="annotated-cell-4" data-code-lines="27" data-code-annotation="6"><code>configs</code>: 对应 &lt;3&gt; 的配置设置, 指定使用当前启动 docker_compose.yml 文件的相对路径下的 <code>prometheus.yml</code></span>
+</dd>
+</dl>
 </section>
 <section id="在-docker-swarm-集群部署" class="level2">
 <h2 class="anchored" data-anchor-id="在-docker-swarm-集群部署">在 docker swarm 集群部署</h2>
 <p>在目标 stack 环境部署 prometheus</p>
-<pre class="shell"><code>$ docker stack deploy -c docker_compose.yml {stack}</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker stack deploy <span class="at">-c</span> docker_compose.yml {stack}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="callout callout-style-simple callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
