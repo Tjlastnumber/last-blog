@@ -173,7 +173,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       </div>
                           <div class="quarto-categories">
                 <div class="quarto-category">news</div>
-                <div class="quarto-category">monitoring</div>
                 <div class="quarto-category">prometheus</div>
                 <div class="quarto-category">docker swarm</div>
               </div>
@@ -219,6 +218,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#docker-swarm-使用-prometheus-监控集群状态" id="toc-docker-swarm-使用-prometheus-监控集群状态" class="nav-link active" data-scroll-target="#docker-swarm-使用-prometheus-监控集群状态">docker swarm 使用 prometheus 监控集群状态</a>
   <ul class="collapse">
+  <li><a href="#背景" id="toc-背景" class="nav-link" data-scroll-target="#背景">背景</a></li>
   <li><a href="#打开-docker-采集端口" id="toc-打开-docker-采集端口" class="nav-link" data-scroll-target="#打开-docker-采集端口">打开 docker 采集端口</a></li>
   <li><a href="#在-docker-swarm-创建-configs" id="toc-在-docker-swarm-创建-configs" class="nav-link" data-scroll-target="#在-docker-swarm-创建-configs">在 docker swarm 创建 configs</a></li>
   <li><a href="#docker_compose.yml-配置" id="toc-docker_compose.yml-配置" class="nav-link" data-scroll-target="#docker_compose.yml-配置">docker_compose.yml 配置</a></li>
@@ -236,9 +236,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="docker-swarm-使用-prometheus-监控集群状态" class="level1">
 <h1>docker swarm 使用 prometheus 监控集群状态</h1>
-<p>由于不能从外部访问 docker swarm 的 overlay 网络，prometheus 无法在外部访问应用端口，所以需要将 prometheus 部署对应的 stack 环境并加入到 ingress 网络，这样就能在内部通过 vip 或者 service name 访问容器</p>
+<section id="背景" class="level2">
+<h2 class="anchored" data-anchor-id="背景">背景</h2>
+<p>想要使用 prometheus 监控 docker swarm 的集群以及集群中的容器，按照 prometheus 官方的文档实现的话，需要将所有容器的端口都暴露出来，出于安全和维护得考虑我并不想把所有的容器端口都暴露到容器集群之外，而是只使用一个代理服务暴露出来。通过服务名称在集群内通信。关于这部分网络通信可以查看 <a href="https://docs.docker.com/engine/swarm/networking/#key-network-concepts">docker swarm 网络相关文档</a>。这里引用一段关于 overlay 网络的说明。</p>
+<blockquote class="blockquote">
+<p><code>overlay</code>: Overlay networks connect multiple Docker daemons together and enable Swarm services and containers to communicate across nodes. This strategy removes the need to do OS-level routing. See <a href="https://docs.docker.com/network/drivers/overlay/">Overlay network driver</a>.</p>
+<blockquote class="blockquote">
+<p><code>overlay</code>: 覆盖网络将多个 Docker 守护进程连接在一起，并使 Swarm 服务和容器能够跨节点通信。此策略消除了进行操作系统级路由的需要。</p>
+</blockquote>
+</blockquote>
+<p>由于网络的限制，<code>prometheus</code> 不能从外部访问 <code>docker swarm</code> 的 <code>overlay</code> 网络，<code>prometheus</code> 无法在外部访问应用端口，所以需要将 <code>prometheus</code> 部署对应的 <code>stack</code> 环境并加入到 <code>ingress</code> 网络，这样就能在内部通过 <code>vip</code> 或者 <code>service name</code> 访问容器。</p>
+<p><code>prometheus</code> 官方并没有提供关于这个的最佳解决方案，所以才有了本篇文章。</p>
+</section>
 <section id="打开-docker-采集端口" class="level2">
 <h2 class="anchored" data-anchor-id="打开-docker-采集端口">打开 docker 采集端口</h2>
+<p>以下是我在官方关于 <code>docker swarm</code> 服务发现的配置基础上做了部分改进。建议先查看 <a href="https://prometheus.io/docs/guides/dockerswarm/">prometheus 官方文档</a>再看以下部分，可以帮助理解。</p>
 <ol type="1">
 <li>修改 <code>/etc/docker/daemon.json</code> 添加配置：</li>
 </ol>
@@ -251,7 +263,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>重启 docker 守护进程</li>
 </ol>
 <div class="sourceCode" id="cb2"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> systemctl restart docker</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="callout callout-style-simple callout-warning callout-titled">
+<div class="callout callout-style-simple callout-tip callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
 <i class="callout-icon"></i>
@@ -262,7 +274,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div class="callout-body-container callout-body">
 <ul>
-<li>需要集群中所有 docker 打开 9323 端口</li>
+<li>需要集群中所有 <code>docker</code> 节点打开 <code>9323</code> 端口</li>
 <li>需要打开服务器防火墙</li>
 </ul>
 </div>
@@ -270,7 +282,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="在-docker-swarm-创建-configs" class="level2">
 <h2 class="anchored" data-anchor-id="在-docker-swarm-创建-configs">在 docker swarm 创建 configs</h2>
-<p>在当前目录创建 prometheus.yml 文件:</p>
+<p>我们需要将 <code>prometheus</code> 的配置挂载到容器外的宿主机上，这里有两种方式可以使用：</p>
+<ol type="1">
+<li>只读方式挂载到宿主机本地磁盘</li>
+<li>使用 <code>docker config</code> 方式配置到容器的配置列表。</li>
+</ol>
+<p>这里采用里的 <code>2</code> 的方式，这样便于从容器相关可视化页面查看，例如： <a href="https://www.portainer.io/">portainer</a></p>
+<p>在 <strong>docker swarm manager节点</strong> 创建 prometheus.yml 文件:</p>
 <div class="sourceCode" id="annotated-cell-3"><pre class="sourceCode yaml code-annotation-code code-with-copy code-annotated"><code class="sourceCode yaml"><span id="annotated-cell-3-1"><a href="#annotated-cell-3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># my global config</span></span>
 <span id="annotated-cell-3-2"><a href="#annotated-cell-3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">global</span><span class="kw">:</span></span>
 <span id="annotated-cell-3-3"><a href="#annotated-cell-3-3" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">scrape_interval</span><span class="kw">:</span><span class="at"> 1m</span><span class="co"> # Set the scrape interval to every 15 seconds. Default is every 1 minute.</span></span>
@@ -331,7 +349,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt data-target-cell="annotated-cell-3" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="16" data-code-annotation="2"><code>dockerswarm_sd_configs</code>: 使用 <code>prometheus</code> 内置支持的 <code>dockerswarm</code> 服务发现配置</span>
+<span data-code-cell="annotated-cell-3" data-code-lines="16" data-code-annotation="2"><code>dockerswarm_sd_configs</code>: 使用 <code>prometheus</code> 内置支持的 <code>dockerswarm</code> 服务发现配置 ;<code>host</code>: 配置 <code>unix:///var/run/docker.sock</code> 访问 docker 的守护进程 ;<code>role</code>: 配置为 <code>node</code> 用于访问表示监控 <code>docker swarm</code> 节点</span>
 </dd>
 <dt data-target-cell="annotated-cell-3" data-target-annotation="3">3</dt>
 <dd>
@@ -347,7 +365,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </dd>
 <dt data-target-cell="annotated-cell-3" data-target-annotation="6">6</dt>
 <dd>
-<span data-code-cell="annotated-cell-3" data-code-lines="33" data-code-annotation="6"><code>dockerswarm_sd_configs</code>: 同样使用 docker swarm 服务发现配置 - <code>host</code>: 配置 <code>unix:///var/run/docker.sock</code> 访问 docker 的守护进程 - <code>role</code>: 配置为 <code>tasks</code> 用于访问表示监控 <code>docker swarm</code> 运行的容器</span>
+<span data-code-cell="annotated-cell-3" data-code-lines="33" data-code-annotation="6"><code>dockerswarm_sd_configs</code>: 同样使用 docker swarm 服务发现配置 ;<code>host</code>: 配置 <code>unix:///var/run/docker.sock</code> 访问 docker 的守护进程 ;<code>role</code>: 配置为 <code>tasks</code> 用于访问表示监控 <code>docker swarm</code> 运行的容器</span>
 </dd>
 <dt data-target-cell="annotated-cell-3" data-target-annotation="7">7</dt>
 <dd>
@@ -381,67 +399,70 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="docker_compose.yml-配置" class="level2">
 <h2 class="anchored" data-anchor-id="docker_compose.yml-配置">docker_compose.yml 配置</h2>
-<div class="sourceCode" id="annotated-cell-4"><pre class="sourceCode yaml code-annotation-code code-with-copy code-annotated"><code class="sourceCode yaml"><span id="annotated-cell-4-1"><a href="#annotated-cell-4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">"3.5"</span></span>
-<span id="annotated-cell-4-2"><a href="#annotated-cell-4-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-4-3"><a href="#annotated-cell-4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
-<span id="annotated-cell-4-4"><a href="#annotated-cell-4-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">prometheus</span><span class="kw">:</span></span>
-<span id="annotated-cell-4-5"><a href="#annotated-cell-4-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> prom/prometheus:latest</span></span>
-<span id="annotated-cell-4-6"><a href="#annotated-cell-4-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
-<span id="annotated-cell-4-7"><a href="#annotated-cell-4-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">"9090:9090"</span></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-4-8" class="code-annotation-target"><a href="#annotated-cell-4-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">user</span><span class="kw">:</span><span class="at"> root</span></span>
-<span id="annotated-cell-4-9"><a href="#annotated-cell-4-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">deploy</span><span class="kw">:</span></span>
-<span id="annotated-cell-4-10"><a href="#annotated-cell-4-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">mode</span><span class="kw">:</span><span class="at"> replicated</span></span>
-<span id="annotated-cell-4-11"><a href="#annotated-cell-4-11" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">replicas</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
-<span id="annotated-cell-4-12"><a href="#annotated-cell-4-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">placement</span><span class="kw">:</span></span>
-<span id="annotated-cell-4-13"><a href="#annotated-cell-4-13" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">constraints</span><span class="kw">:</span></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-4-14" class="code-annotation-target"><a href="#annotated-cell-4-14" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="kw">-</span><span class="at"> node.role == manager</span></span>
-<span id="annotated-cell-4-15"><a href="#annotated-cell-4-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">networks</span><span class="kw">:</span></span>
-<span id="annotated-cell-4-16"><a href="#annotated-cell-4-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> overlay</span></span>
-<span id="annotated-cell-4-17"><a href="#annotated-cell-4-17" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">configs</span><span class="kw">:</span></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-4-18" class="code-annotation-target"><a href="#annotated-cell-4-18" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> prometheus_config</span></span>
-<span id="annotated-cell-4-19"><a href="#annotated-cell-4-19" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target</span><span class="kw">:</span><span class="at"> /etc/prometheus/prometheus.yml</span></span>
-<span id="annotated-cell-4-20"><a href="#annotated-cell-4-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-4-21" class="code-annotation-target"><a href="#annotated-cell-4-21" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">'--config.file=/etc/prometheus/prometheus.yml'</span></span>
-<span id="annotated-cell-4-22"><a href="#annotated-cell-4-22" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-4-23" class="code-annotation-target"><a href="#annotated-cell-4-23" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> /var/run/docker.sock:/var/run/docker.sock:ro</span></span>
-<span id="annotated-cell-4-24"><a href="#annotated-cell-4-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-4-25"><a href="#annotated-cell-4-25" aria-hidden="true" tabindex="-1"></a><span class="fu">configs</span><span class="kw">:</span></span>
-<span id="annotated-cell-4-26"><a href="#annotated-cell-4-26" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">prometheus_config</span><span class="kw">:</span></span>
-<a class="code-annotation-anchor" data-target-cell="annotated-cell-4" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-4-27" class="code-annotation-target"><a href="#annotated-cell-4-27" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">file</span><span class="kw">:</span><span class="at"> ./prometheus.yml</span></span>
-<span id="annotated-cell-4-28"><a href="#annotated-cell-4-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="annotated-cell-4-29"><a href="#annotated-cell-4-29" aria-hidden="true" tabindex="-1"></a><span class="fu">networks</span><span class="kw">:</span></span>
-<span id="annotated-cell-4-30"><a href="#annotated-cell-4-30" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">overlay</span><span class="kw">:</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>创建 <code>docker_compose.yml</code> 文件:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> vim docker_compose.yml</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>写入以下配置:</p>
+<div class="sourceCode" id="annotated-cell-5"><pre class="sourceCode yaml code-annotation-code code-with-copy code-annotated"><code class="sourceCode yaml"><span id="annotated-cell-5-1"><a href="#annotated-cell-5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">version</span><span class="kw">:</span><span class="at"> </span><span class="st">"3.5"</span></span>
+<span id="annotated-cell-5-2"><a href="#annotated-cell-5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-3"><a href="#annotated-cell-5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">services</span><span class="kw">:</span></span>
+<span id="annotated-cell-5-4"><a href="#annotated-cell-5-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">prometheus</span><span class="kw">:</span></span>
+<span id="annotated-cell-5-5"><a href="#annotated-cell-5-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">image</span><span class="kw">:</span><span class="at"> prom/prometheus:latest</span></span>
+<span id="annotated-cell-5-6"><a href="#annotated-cell-5-6" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">ports</span><span class="kw">:</span></span>
+<span id="annotated-cell-5-7"><a href="#annotated-cell-5-7" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">"9090:9090"</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="1" onclick="event.preventDefault();">1</a><span id="annotated-cell-5-8" class="code-annotation-target"><a href="#annotated-cell-5-8" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">user</span><span class="kw">:</span><span class="at"> root</span></span>
+<span id="annotated-cell-5-9"><a href="#annotated-cell-5-9" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">deploy</span><span class="kw">:</span></span>
+<span id="annotated-cell-5-10"><a href="#annotated-cell-5-10" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">mode</span><span class="kw">:</span><span class="at"> replicated</span></span>
+<span id="annotated-cell-5-11"><a href="#annotated-cell-5-11" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">replicas</span><span class="kw">:</span><span class="at"> </span><span class="dv">1</span></span>
+<span id="annotated-cell-5-12"><a href="#annotated-cell-5-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="fu">placement</span><span class="kw">:</span></span>
+<span id="annotated-cell-5-13"><a href="#annotated-cell-5-13" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">constraints</span><span class="kw">:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="2" onclick="event.preventDefault();">2</a><span id="annotated-cell-5-14" class="code-annotation-target"><a href="#annotated-cell-5-14" aria-hidden="true" tabindex="-1"></a><span class="at">          </span><span class="kw">-</span><span class="at"> node.role == manager</span></span>
+<span id="annotated-cell-5-15"><a href="#annotated-cell-5-15" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">networks</span><span class="kw">:</span></span>
+<span id="annotated-cell-5-16"><a href="#annotated-cell-5-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> overlay</span></span>
+<span id="annotated-cell-5-17"><a href="#annotated-cell-5-17" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">configs</span><span class="kw">:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="3" onclick="event.preventDefault();">3</a><span id="annotated-cell-5-18" class="code-annotation-target"><a href="#annotated-cell-5-18" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">source</span><span class="kw">:</span><span class="at"> prometheus_config</span></span>
+<span id="annotated-cell-5-19"><a href="#annotated-cell-5-19" aria-hidden="true" tabindex="-1"></a><span class="at">        </span><span class="fu">target</span><span class="kw">:</span><span class="at"> /etc/prometheus/prometheus.yml</span></span>
+<span id="annotated-cell-5-20"><a href="#annotated-cell-5-20" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">command</span><span class="kw">:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="4" onclick="event.preventDefault();">4</a><span id="annotated-cell-5-21" class="code-annotation-target"><a href="#annotated-cell-5-21" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="st">'--config.file=/etc/prometheus/prometheus.yml'</span></span>
+<span id="annotated-cell-5-22"><a href="#annotated-cell-5-22" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">volumes</span><span class="kw">:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="5" onclick="event.preventDefault();">5</a><span id="annotated-cell-5-23" class="code-annotation-target"><a href="#annotated-cell-5-23" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> /var/run/docker.sock:/var/run/docker.sock:ro</span></span>
+<span id="annotated-cell-5-24"><a href="#annotated-cell-5-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-25"><a href="#annotated-cell-5-25" aria-hidden="true" tabindex="-1"></a><span class="fu">configs</span><span class="kw">:</span></span>
+<span id="annotated-cell-5-26"><a href="#annotated-cell-5-26" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">prometheus_config</span><span class="kw">:</span></span>
+<a class="code-annotation-anchor" data-target-cell="annotated-cell-5" data-target-annotation="6" onclick="event.preventDefault();">6</a><span id="annotated-cell-5-27" class="code-annotation-target"><a href="#annotated-cell-5-27" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">file</span><span class="kw">:</span><span class="at"> ./prometheus.yml</span></span>
+<span id="annotated-cell-5-28"><a href="#annotated-cell-5-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="annotated-cell-5-29"><a href="#annotated-cell-5-29" aria-hidden="true" tabindex="-1"></a><span class="fu">networks</span><span class="kw">:</span></span>
+<span id="annotated-cell-5-30"><a href="#annotated-cell-5-30" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">overlay</span><span class="kw">:</span></span><div class="code-annotation-gutter-bg"></div><div class="code-annotation-gutter"></div></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <dl class="code-annotation-container-grid">
-<dt data-target-cell="annotated-cell-4" data-target-annotation="1">1</dt>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="1">1</dt>
 <dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="8" data-code-annotation="1"><code>user：root</code>: 使用 root 用户创建容器，因为需要监听 <code>docker.sock</code></span>
+<span data-code-cell="annotated-cell-5" data-code-lines="8" data-code-annotation="1"><code>user：root</code>: 使用 root 用户创建容器，因为需要监听 <code>docker.sock</code></span>
 </dd>
-<dt data-target-cell="annotated-cell-4" data-target-annotation="2">2</dt>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="2">2</dt>
 <dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="14" data-code-annotation="2"><code>node.role == manager</code>: 设置角色为 <code>manager</code>, 因为需要将 <code>prometheus</code> 容器运行在 <code>docker swarm</code> 的主节点上</span>
+<span data-code-cell="annotated-cell-5" data-code-lines="14" data-code-annotation="2"><code>node.role == manager</code>: 设置角色为 <code>manager</code>, 因为需要将 <code>prometheus</code> 容器运行在 <code>docker swarm</code> 的主节点上</span>
 </dd>
-<dt data-target-cell="annotated-cell-4" data-target-annotation="3">3</dt>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="3">3</dt>
 <dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="18" data-code-annotation="3"><code>prometheus_config</code>: 是上一步设置的 <code>docker config</code> 名称</span>
+<span data-code-cell="annotated-cell-5" data-code-lines="18" data-code-annotation="3"><code>prometheus_config</code>: 是上一步设置的 <code>docker config</code> 名称</span>
 </dd>
-<dt data-target-cell="annotated-cell-4" data-target-annotation="4">4</dt>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="4">4</dt>
 <dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="21" data-code-annotation="4"><code>config.file=/etc/prometheus/prometheus.yml</code>: 设置 <code>prometheus</code> 启动时使用的命令</span>
+<span data-code-cell="annotated-cell-5" data-code-lines="21" data-code-annotation="4"><code>config.file=/etc/prometheus/prometheus.yml</code>: 设置 <code>prometheus</code> 启动时使用的命令</span>
 </dd>
-<dt data-target-cell="annotated-cell-4" data-target-annotation="5">5</dt>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="5">5</dt>
 <dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="23" data-code-annotation="5"><code>/var/run/docker.sock:/var/run/docker.sock:ro</code>: 挂载 <code>docker</code> 的守护进程</span>
+<span data-code-cell="annotated-cell-5" data-code-lines="23" data-code-annotation="5"><code>/var/run/docker.sock:/var/run/docker.sock:ro</code>: 挂载 <code>docker</code> 的守护进程</span>
 </dd>
-<dt data-target-cell="annotated-cell-4" data-target-annotation="6">6</dt>
+<dt data-target-cell="annotated-cell-5" data-target-annotation="6">6</dt>
 <dd>
-<span data-code-cell="annotated-cell-4" data-code-lines="27" data-code-annotation="6"><code>configs</code>: 对应 &lt;3&gt; 的配置设置, 指定使用当前启动 docker_compose.yml 文件的相对路径下的 <code>prometheus.yml</code></span>
+<span data-code-cell="annotated-cell-5" data-code-lines="27" data-code-annotation="6"><code>configs</code>: 对应 &lt;3&gt; 的配置设置, 指定使用当前启动 docker_compose.yml 文件的相对路径下的 <code>prometheus.yml</code></span>
 </dd>
 </dl>
 </section>
 <section id="在-docker-swarm-集群部署" class="level2">
 <h2 class="anchored" data-anchor-id="在-docker-swarm-集群部署">在 docker swarm 集群部署</h2>
-<p>在目标 stack 环境部署 prometheus</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker stack deploy <span class="at">-c</span> docker_compose.yml {stack}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>在目标 <code>stack</code> 环境部署 <code>prometheus</code></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">$</span> docker stack deploy <span class="at">-c</span> docker_compose.yml {stack}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="callout callout-style-simple callout-warning callout-titled">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">
