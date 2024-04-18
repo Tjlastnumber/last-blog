@@ -18,9 +18,15 @@ Obsidian是一款基于 Markdown 的笔记编辑器，具有双向链接、图�
 之前我用过[印象笔记（Evernote)](https://www.yinxiang.com/)、[Notion](https://www.notion.so/)、[Joplin]([laurent22/joplin: Joplin - the secure note taking and to-do app with synchronisation capabilities for Windows, macOS, Linux, Android and iOS. (github.com)](https://github.com/laurent22/joplin))：
 
 - 印象笔记：比较老牌的笔记管理工具，但当时对 markdown 文档支持不是那么理想，设计上也是传统的页面，而且不支持插件。他的优势在于对网页的快速保存。所以现在是作为我的网页收藏夹来使用。
-- Joplin：是比较现代的化的 markdown 编辑器，优点是支持插件、可以云盘存储比如
+- `Joplin`：是比较现代的化的 markdown 编辑器，优点是支持插件、可以云盘存储比如 OneDriver, 同时支持 `vim` 编辑方式, 这个是我最初使用他的原因, 对于文档的整理和跳转, 以及 markdown 的渲染不够美观. 
+- `Notion`: 这是比较有名的在线笔记工具, 可以使用"块"的方式编辑笔记, 提供了比较新颖的交互方式, 但是他对于我来说有个致命的弱点就是不能完全通过键盘操作, 不支持 `vim` 模式, 我比较依赖 `vim` 的编辑方式, 频繁操作鼠标容易让我打断思路. 所以没有重度的使用 notion, 他更多是作为看板工具. 
+
+`Obsidian` 非常符合我的使用习惯, 原生支持 `vim` 模式, 可以使用 `github` 作为笔记存储仓库, 同时他 `vault` 的笔记管理模式, 可以支持不同的笔记仓库上传到不同的 `git` 仓库,
+这样可以很好的将**工作**和**生活**笔记做区分。 还有丰富的插件提供了很多功能。它就像是一个专门为了笔记而生的 `vscode` 但是他比 `vscode` 更美观。
 
 ## Quarto 介绍
+
+他是一个
 
 ```markdown
 ---

@@ -4,18 +4,29 @@ author: lastnumber
 date: 2024-04-08
 categories:
   - news
-  - monitoring
   - prometheus
   - docker swarm
 image: docker_swarm.png
 description: 使用 prometheus 同时监控 docker swarm 集群的多个 stock
 ---
-
 # docker swarm 使用 prometheus 监控集群状态
 
-由于不能从外部访问 docker swarm 的 overlay 网络，prometheus 无法在外部访问应用端口，所以需要将 prometheus 部署对应的 stack 环境并加入到 ingress 网络，这样就能在内部通过 vip 或者 service name 访问容器
+## 背景
+
+想要使用 prometheus 监控 docker swarm 的集群以及集群中的容器，按照 prometheus 官方的文档实现的话，需要将所有容器的端口都暴露出来，出于安全和维护得考虑我并不想把所有的容器端口都暴露到容器集群之外，而是只使用一个代理服务暴露出来。通过服务名称在集群内通信。关于这部分网络通信可以查看 [docker swarm 网络相关文档](https://docs.docker.com/engine/swarm/networking/#key-network-concepts)。这里引用一段关于 overlay 网络的说明。
+
+> `overlay`: Overlay networks connect multiple Docker daemons together and enable Swarm services and containers to communicate across nodes. This strategy removes the need to do OS-level routing. See [Overlay network driver](https://docs.docker.com/network/drivers/overlay/).
+>
+>> 
+>> `overlay`: 覆盖网络将多个 Docker 守护进程连接在一起，并使 Swarm 服务和容器能够跨节点通信。此策略消除了进行操作系统级路由的需要。
+
+由于网络的限制，`prometheus` 不能从外部访问 `docker swarm` 的 `overlay` 网络，`prometheus` 无法在外部访问应用端口，所以需要将 `prometheus` 部署对应的 `stack` 环境并加入到 `ingress` 网络，这样就能在内部通过 `vip` 或者 `service name` 访问容器。
+
+`prometheus` 官方并没有提供关于这个的最佳解决方案，所以才有了本篇文章。
 
 ## 打开 docker 采集端口
+
+以下是我在官方关于 `docker swarm` 服务发现的配置基础上做了部分改进。建议先查看 [prometheus 官方文档](https://prometheus.io/docs/guides/dockerswarm/)再看以下部分，可以帮助理解。
 
 1. 修改 `/etc/docker/daemon.json` 添加配置：
 
@@ -34,18 +45,25 @@ description: 使用 prometheus 同时监控 docker swarm 集群的多个 stock
 $ systemctl restart docker
 ```
 
-::: {.callout-warning appearance="simple"}
+:::{.callout-tip appearance="simple"}
 
 ## 注意 
 
-- 需要集群中所有 docker 打开 9323 端口
+- 需要集群中所有 `docker` 节点打开 `9323` 端口
 - 需要打开服务器防火墙
 
 :::
 
 ## 在 docker swarm 创建 configs
 
-在当前目录创建 prometheus.yml 文件:
+我们需要将 `prometheus` 的配置挂载到容器外的宿主机上，这里有两种方式可以使用：
+
+1. 只读方式挂载到宿主机本地磁盘
+2. 使用 `docker config` 方式配置到容器的配置列表。
+
+这里采用里的 `2` 的方式，这样便于从容器相关可视化页面查看，例如： [portainer](https://www.portainer.io/)
+
+在 **docker swarm manager节点** 创建 prometheus.yml 文件:
 
 ```yaml
 # my global config
@@ -104,15 +122,15 @@ scrape_configs:
 ```
 
 1. `job_name:"dockerswarm"`: docker swarm 节点监控
-2. `dockerswarm_sd_configs`: 使用 `prometheus` 内置支持的 `dockerswarm` 服务发现配置
-	-	`host`: 配置 `unix:///var/run/docker.sock` 访问 docker 的守护进程
-	- `role`: 配置为 `node` 用于访问表示监控 `docker swarm` 节点
+2. `dockerswarm_sd_configs`: 使用 `prometheus` 内置支持的 `dockerswarm` 服务发现配置 
+;`host`: 配置 `unix:///var/run/docker.sock` 访问 docker 的守护进程
+;`role`: 配置为 `node` 用于访问表示监控 `docker swarm` 节点
 3. `__meta_dockerswarm_node_address`: 使用 docker swarm 节点地址替换 `__address` label
 4. `__meta_dockerswarm_node_hostname`: 使用 docker swarm hostname 替换 `instance` label
 5. `job_name: 'dockertasks'`: docker task 监控, 监控容器
 6. `dockerswarm_sd_configs`: 同样使用 docker swarm 服务发现配置
-		- `host`: 配置 `unix:///var/run/docker.sock` 访问 docker 的守护进程
-		- `role`: 配置为 `tasks` 用于访问表示监控 `docker swarm` 运行的容器
+;`host`: 配置 `unix:///var/run/docker.sock` 访问 docker 的守护进程
+;`role`: 配置为 `tasks` 用于访问表示监控 `docker swarm` 运行的容器
 7. `__meta_dockerswarm_task_desired_state`: 过滤容器运行状态要保持容器状态微 `running`
 8. `__meta_dockerswarm_container_label_com_docker_stack_namespace`: 容器运行的命名空间, 对应的是 docker swarm 中的 `stock` , `namespace` 是 `k8s` 中不同环境之间隔离的划分名称, 这里过滤掉 `stock` 非 `dev` 
 9. `__meta_dockerswarm_container_label_external_metrics_enable`: 过滤开启了监控的容器
@@ -122,6 +140,14 @@ scrape_configs:
 13. `__meta_dockerswarm_task_id`: 使用 `task_id` 替换掉 `instance`
 
 ## docker_compose.yml 配置
+
+创建 `docker_compose.yml` 文件:
+
+```bash
+$ vim docker_compose.yml
+```
+
+写入以下配置:
 
 ```yaml
 version: "3.5"
@@ -165,7 +191,7 @@ networks:
 
 ## 在 docker swarm 集群部署
 
-在目标 stack 环境部署 prometheus
+在目标 `stack` 环境部署 `prometheus`
 
 ```bash
 $ docker stack deploy -c docker_compose.yml {stack}
